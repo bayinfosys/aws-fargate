@@ -1,0 +1,26 @@
+[
+  {
+    "name": "${ PROJECT_NAME }-${ SERVICE_NAME }",
+    "image": "${ ECR_REPOSITORY }:${ IMAGE_TAG }",
+    "cpu": ${ CONTAINER_CPU },
+    "memory": ${ CONTAINER_MEM },
+    "networkMode": "awsvpc",
+    "portMappings": [
+      {
+        "containerPort": ${ CONTAINER_PORT },
+        "hostPort": ${ HOST_PORT }
+      }
+    ],
+
+    "environment": ${ ENVIRONMENT },
+
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "${ LOG_REGION }",
+        "awslogs-group": "${ LOG_GROUP }",
+        "awslogs-stream-prefix": "${ LOG_PREFIX }"
+      }
+    }
+  }
+]

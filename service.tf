@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "default" {
     })
 
   # https://github.com/cloudposse/terraform-aws-ecs-alb-service-task/issues/39
-  tags = merge(var.project_tags)
+  tags = merge(var.tags)
 }
 
 #
@@ -62,5 +62,5 @@ resource "aws_ecs_service" "default" {
 
   enable_ecs_managed_tags = true
   propagate_tags = "SERVICE"
-  tags = merge(var.project_tags)
+  tags = merge(var.tags)
 }

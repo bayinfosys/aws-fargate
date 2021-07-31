@@ -3,11 +3,11 @@ module "fargate" {
 
   aws_region = var.aws_region
   project_name = var.project_name
-  project_tags = var.project_tags
-  network_tags = var.network_tags
+  tags = merge(var.project_tags, var.network_tags)
 
   fargate_cpu = 512
   fargate_mem = 2048
+  capacity_providers = ["FARGATE_SPOT"]
 
   vpc_id = module.vpc.vpc_id
   vpc_public_subnets = module.vpc.public_subnets

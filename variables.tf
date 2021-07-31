@@ -1,13 +1,9 @@
 variable "aws_region" { type = string }
 
 variable "project_name"   { type = string }
-variable "project_tags" { type = map(string) }
-variable "network_tags" { type = map(string) }
+variable "tags" { type = map(string) }
 
-#variable "ecr_repository_url" { type = string }
-#variable "backend_image_tag" { type = string }
-#variable "mongo_connection_string" { type = string }
-
+variable "capacity_providers" { default = ["FARGATE"] }
 variable "fargate_cpu" { default = 256 }
 variable "fargate_mem" { default = 512 }
 

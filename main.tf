@@ -1,9 +1,9 @@
 resource "aws_ecs_cluster" "default" {
   name = var.project_name
 
-  capacity_providers = ["FARGATE_SPOT"]
+  capacity_providers = var.capacity_providers
 
-  tags = merge(var.project_tags)
+  tags = merge(var.tags)
 }
 
 resource "aws_cloudwatch_log_group" "default" {

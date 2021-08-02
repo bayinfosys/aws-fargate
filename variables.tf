@@ -13,6 +13,8 @@ variable "vpc_private_subnets" { type = list(string) }
 
 variable "security_groups" { type = list(string) }
 
+# NB: terraform gives crap errors if any of these values
+#     are missing; it will just say "container_name" required
 variable "services" {
   type = map(object({
 

@@ -4,7 +4,7 @@
 resource "aws_ecs_task_definition" "default" {
   for_each = var.services
 
-  family = "${var.project_name}-${each.key}"
+  family = "${var.project_name}-${var.env}-${each.key}"
   requires_compatibilities = ["FARGATE"]
   network_mode = "awsvpc"
   execution_role_arn = aws_iam_role.ecs_execution_role.arn

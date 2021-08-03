@@ -2,13 +2,18 @@
   {
     "name": "${ PROJECT_NAME }-${ ENV }-${ SERVICE_NAME }",
     "image": "${ ECR_REPOSITORY }:${ IMAGE_TAG }",
+    "essential": true,
+
     "cpu": ${ CONTAINER_CPU },
     "memory": ${ CONTAINER_MEM },
     "networkMode": "awsvpc",
+
+    "mountPoints": [],
     "portMappings": [
       {
         "containerPort": ${ CONTAINER_PORT },
-        "hostPort": ${ HOST_PORT }
+        "hostPort": ${ HOST_PORT },
+        "protcol": "tcp"
       }
     ],
 

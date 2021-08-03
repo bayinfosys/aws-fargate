@@ -24,7 +24,7 @@ resource "aws_ecs_task_definition" "default" {
       HOST_PORT = each.value.container_definition.host_port
       CONTAINER_PORT = each.value.container_definition.container_port
       LOG_REGION = var.aws_region
-      LOG_GROUP = var.project_name
+      LOG_GROUP = "${var.project_name}-${var.env}"
       LOG_PREFIX = each.key
     })
 

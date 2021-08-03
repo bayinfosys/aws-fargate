@@ -1,6 +1,6 @@
 [
   {
-    "name": "${ PROJECT_NAME }-${ SERVICE_NAME }",
+    "name": "${ PROJECT_NAME }-${ ENV }-${ SERVICE_NAME }",
     "image": "${ ECR_REPOSITORY }:${ IMAGE_TAG }",
     "cpu": ${ CONTAINER_CPU },
     "memory": ${ CONTAINER_MEM },

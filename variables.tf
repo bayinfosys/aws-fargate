@@ -1,6 +1,7 @@
 variable "aws_region" { type = string }
 
 variable "project_name"   { type = string }
+variable "env" { type = string }
 variable "tags" { type = map(string) }
 
 variable "capacity_providers" { default = ["FARGATE"] }

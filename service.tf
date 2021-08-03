@@ -16,6 +16,7 @@ resource "aws_ecs_task_definition" "default" {
     {
       PROJECT_NAME = var.project_name
       SERVICE_NAME = each.key
+      ENV = var.env
       ECR_REPOSITORY = each.value.container_definition.ecr_repository
       IMAGE_TAG = each.value.container_definition.image_tag
       CONTAINER_CPU = each.value.container_definition.container_cpu

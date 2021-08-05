@@ -47,7 +47,7 @@ resource "aws_ecs_service" "default" {
   desired_count = 1
 
   deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 0
+  deployment_minimum_healthy_percent = 100
 
   network_configuration {
     subnets = var.vpc_public_subnets

@@ -50,15 +50,25 @@ resource "aws_ecs_service" "default" {
   deployment_minimum_healthy_percent = 100
 
   network_configuration {
+    # FIXME: use vpc_private_subnets if we are an internal only service
     subnets = var.vpc_public_subnets
     security_groups = var.security_groups
     assign_public_ip = true
   }
 
   load_balancer {
+    # FIXME: disable load balancer block if we are an internal only service
     target_group_arn = var.target_group_arns[index(keys(var.services), each.key)]
     container_name = each.value.container_name
     container_port = each.value.container_port
+  }
+
+  dynamic service_registries {
+    for_each = var.service_discovery == false ? [] : [1]
+
+    content {
+      registry_arn = aws_service_discovery_service.default[each.key].arn
+    }
   }
 
   enable_ecs_managed_tags = true

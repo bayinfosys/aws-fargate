@@ -24,3 +24,9 @@ output "task_role_name" {
 
   value = aws_iam_role.ecs_task_role.name
 }
+
+output "discovery_uri" {
+  description = "service discovery URIs for the services"
+
+  value = var.service_discovery == false ? {} : {for key, service in var.services : key => join(".", [key, aws_service_discovery_private_dns_namespace.default[0].name])}
+}

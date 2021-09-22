@@ -16,6 +16,8 @@ variable "security_groups" { type = list(string) }
 
 # NB: terraform gives crap errors if any of these values
 #     are missing; it will just say "container_name" required
+# FIXME: add a flag for "private-services" which are internal
+#        and not on the public subnet
 variable "services" {
   type = map(object({
 
@@ -40,4 +42,10 @@ variable "services" {
 variable "target_group_arns" {
   description = "target group arns from the alb module"
   type = list(string)
+}
+
+variable "service_discovery" {
+  description = "enable service discovery via private DNS to internal VPC IPs"
+  type = bool
+  default = false
 }

@@ -23,7 +23,9 @@ resource "aws_ecs_task_definition" "default" {
       CONTAINER_MEM = each.value.container_definition.container_mem
       ENVIRONMENT = jsonencode(each.value.container_definition.environment)
       HOST_PORT = each.value.container_definition.host_port
-      CONTAINER_PORT = each.value.container_definition.container_port
+      CONTAINER_PORT = each.value.container_port
+#      CONTAINER_ENTRYPOINT = each.value.container_definition.entrypoint
+#      CONTAINER_COMMAND = each.value.container_definition.command
       LOG_REGION = var.aws_region
       LOG_GROUP = "${var.project_name}-${var.env}"
       LOG_PREFIX = each.key
@@ -52,14 +54,14 @@ resource "aws_ecs_service" "default" {
   network_configuration {
     # FIXME: use vpc_private_subnets if we are an internal only service
     subnets = var.vpc_public_subnets
-    security_groups = var.security_groups
+    security_groups = [module.sg.security_group_id]
     assign_public_ip = true
   }
 
   load_balancer {
     # FIXME: disable load balancer block if we are an internal only service
-    target_group_arn = var.target_group_arns[index(keys(var.services), each.key)]
-    container_name = each.value.container_name
+    target_group_arn = module.alb.target_group_arns[index(keys(var.services), each.key)]
+    container_name = join("-", [var.project_name, var.env, each.key]) # referenced in task-def.json
     container_port = each.value.container_port
   }
 

@@ -30,3 +30,14 @@ output "discovery_uri" {
 
   value = var.service_discovery == false ? {} : {for key, service in var.services : key => join(".", [key, aws_service_discovery_private_dns_namespace.default[0].name])}
 }
+
+output "lb_zone_id" {
+  description = "load balancer internal domain hosted zone id"
+
+  value = module.alb.lb_zone_id
+}
+
+output "lb_dns_name" {
+  description = "load balancer internal domain name"
+  value = module.alb.lb_dns_name
+}

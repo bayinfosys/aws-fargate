@@ -4,22 +4,21 @@ data "aws_ip_ranges" "region_api_gateway" {
 }
 
 module "sg" {
-  count = length(var.networked_services)
+  for_each = var.networked_services
 
   source  = "terraform-aws-modules/security-group/aws"
 
-  name        = "${var.project_name}-fargate-alb-sg"
+  name        = join("-", [var.project_name, each.key])
   vpc_id      = var.vpc_id
 
   ingress_cidr_blocks = var.vpc_public_subnets_cidr_blocks
-  ingress_rules = ["http-80-tcp"]
 
-  ingress_with_cidr_blocks = [for key, service in var.networked_services :
+  ingress_with_cidr_blocks = [
     {
-      from_port   = service.container_definition.host_port
-      to_port     = service.container_definition.host_port
+      from_port   = each.value.container_definition.host_port
+      to_port     = each.value.container_definition.host_port
       protocol    = "TCP"
-      description = key
+      description = join("-", [var.project_name, each.key])
       cidr_blocks = join(",", var.vpc_public_subnets_cidr_blocks)
     }
     # FIXME: do we need the api gateway cidr blocks?
@@ -39,8 +38,6 @@ module "sg" {
 }
 
 module "alb" {
-  count = length(var.networked_services)
-
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 5.10.0"
 
@@ -49,7 +46,7 @@ module "alb" {
   load_balancer_type = "application"
 
   vpc_id          = var.vpc_id
-  security_groups = [module.sg.security_group_id]
+  security_groups = module.sg.*.security_group_id
   subnets         = var.vpc_public_subnets
 
   //  # See notes in README (ref: https://github.com/terraform-providers/terraform-provider-aws/issues/7987)

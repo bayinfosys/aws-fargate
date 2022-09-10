@@ -4,6 +4,8 @@ data "aws_ip_ranges" "region_api_gateway" {
 }
 
 module "sg" {
+  count = length(var.networked_services)
+
   source  = "terraform-aws-modules/security-group/aws"
 
   name        = "${var.project_name}-fargate-alb-sg"
@@ -12,22 +14,22 @@ module "sg" {
   ingress_cidr_blocks = var.vpc_public_subnets_cidr_blocks
   ingress_rules = ["http-80-tcp"]
 
-  ingress_with_cidr_blocks = [
-    # FIXME: pass these from outside the module via a map
+  ingress_with_cidr_blocks = [for key, service in var.networked_services :
     {
-      from_port   = 8001
-      to_port     = 8001
+      from_port   = service.container_definition.host_port
+      to_port     = service.container_definition.host_port
       protocol    = "TCP"
-      description = "api"
+      description = key
       cidr_blocks = join(",", var.vpc_public_subnets_cidr_blocks)
-    },
-    {
-      from_port   = 443
-      to_port     = 443
-      description = "SSL"
-      protocol    = "TCP"
-      cidr_blocks = join(",", data.aws_ip_ranges.region_api_gateway.cidr_blocks)
     }
+    # FIXME: do we need the api gateway cidr blocks?
+#    {
+#      from_port   = 443
+#      to_port     = 443
+#      description = "SSL"
+#      protocol    = "TCP"
+#      cidr_blocks = join(",", data.aws_ip_ranges.region_api_gateway.cidr_blocks)
+#    }
   ]
 
   egress_cidr_blocks = ["0.0.0.0/0"]
@@ -37,6 +39,8 @@ module "sg" {
 }
 
 module "alb" {
+  count = length(var.networked_services)
+
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 5.10.0"
 
@@ -84,15 +88,15 @@ module "alb" {
   ]
 
   # rules per-service
-  https_listener_rules = [for key, service in var.services :
+  https_listener_rules = [for key, service in var.networked_services :
     {
       https_listener_index = 0
-      priority             = sum([1, index(keys(var.services), key)])
+      priority             = sum([1, index(keys(var.networked_services), key)])
 
       actions = [
         {
           type               = "forward"
-          target_group_index = index(keys(var.services), key)
+          target_group_index = index(keys(var.networked_services), key)
         }
       ]
 
@@ -110,7 +114,7 @@ module "alb" {
   ]
 
   # target groups per-service
-  target_groups = [ for key, service in var.services :
+  target_groups = [ for key, service in var.networked_services :
     {
       name             = "${var.project_name}-${var.env}-${key}"
       backend_protocol = "HTTP"

@@ -6,7 +6,7 @@ resource "aws_service_discovery_private_dns_namespace" "default" {
 }
 
 resource "aws_service_discovery_service" "default" {
-  for_each = var.service_discovery == false ? {} : var.services
+  for_each = var.service_discovery == false ? {} : var.networked_services
 
   name = each.key
 

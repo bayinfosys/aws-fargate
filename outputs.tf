@@ -10,7 +10,7 @@ output "service_domain_names" {
 output "services" {
   description = "services registered in the this fargate app"
 
-  value = var.services
+  value = merge(var.networked_services, var.queued_services)
 }
 
 output "execution_role_name" {
@@ -28,16 +28,16 @@ output "task_role_name" {
 output "discovery_uri" {
   description = "service discovery URIs for the services"
 
-  value = var.service_discovery == false ? {} : {for key, service in var.services : key => join(".", [key, aws_service_discovery_private_dns_namespace.default[0].name])}
+  value = var.service_discovery == false ? {} : {for key, service in var.networked_services : key => join(".", [key, aws_service_discovery_private_dns_namespace.default[0].name])}
 }
 
 output "lb_zone_id" {
   description = "load balancer internal domain hosted zone id"
 
-  value = module.alb.lb_zone_id
+  value = module.alb.this_lb_zone_id
 }
 
 output "lb_dns_name" {
   description = "load balancer internal domain name"
-  value = module.alb.lb_dns_name
+  value = module.alb.this_lb_dns_name
 }

@@ -20,7 +20,7 @@ variable "vpc_private_subnets" { type = list(string) }
 #        and not on the public subnet
 # FIXME: can we use the defaults function here?:
 #        https://www.terraform.io/language/functions/defaults
-variable "services" {
+variable "networked_services" {
   type = map(object({
 
     container_port = string
@@ -44,7 +44,25 @@ variable "services" {
       }))
     })
   }))
-  description = "list of containers, names and ports for the services; container_entrypoint and container_command should be []"
+  description = "list of containers for networked services which are mapped to the ALB"
+}
+
+variable "queued_services" {
+  type = map(object({
+    input_queue_names = list(string)
+
+    container_definition = object({
+      ecr_repository = string
+      image_tag = string
+      container_cpu = number
+      container_mem = number
+      environment = list(object({
+        name = string
+        value = string
+      }))
+    })
+  }))
+  description = "list of containers for services which listen to queues"
 }
 
 variable "service_discovery" {

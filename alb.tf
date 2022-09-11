@@ -37,16 +37,43 @@ module "sg" {
   tags = merge(var.tags)
 }
 
+module "alb_sg" {
+  # access to alb from http, https and api-gateway
+  source  = "terraform-aws-modules/security-group/aws"
+
+  name        = join("-", [var.project_name, "alb"])
+  vpc_id      = var.vpc_id
+
+  ingress_cidr_blocks = var.vpc_public_subnets_cidr_blocks
+  ingress_rules = ["http-80-tcp"]
+ #, "https-443-tcp"]
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 443
+      to_port     = 443
+      description = "SSL"
+      protocol    = "TCP"
+      cidr_blocks = join(",", data.aws_ip_ranges.region_api_gateway.cidr_blocks)
+    }
+  ]
+
+  egress_cidr_blocks = ["0.0.0.0/0"]
+  egress_rules = ["all-all"]
+
+  tags = merge(var.tags)
+}
+
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 5.10.0"
 
-  name = "${var.project_name}-fargate-alb"
+  name = var.project_name
 
   load_balancer_type = "application"
 
   vpc_id          = var.vpc_id
-  security_groups = module.sg.*.security_group_id
+  security_groups = [module.alb_sg.security_group_id]
   subnets         = var.vpc_public_subnets
 
   //  # See notes in README (ref: https://github.com/terraform-providers/terraform-provider-aws/issues/7987)

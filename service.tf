@@ -59,7 +59,7 @@ resource "aws_ecs_service" "networked" {
   network_configuration {
     # FIXME: use vpc_private_subnets if we are an internal only service
     subnets = var.vpc_public_subnets
-    security_groups = [module.sg.security_group_id]
+    security_groups = [for key, service in var.networked_services: module.sg[key].security_group_id]
     assign_public_ip = true
   }
 
@@ -98,7 +98,8 @@ resource "aws_ecs_service" "queued" {
 
   network_configuration {
     subnets = var.vpc_public_subnets
-    security_groups = [module.sg.security_group_id]
+    # FIXME: this is incorrect, should be for queued services
+    security_groups = module.sg.*.security_group_id
     assign_public_ip = false
   }
 
